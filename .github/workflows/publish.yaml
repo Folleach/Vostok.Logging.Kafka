@@ -1,0 +1,41 @@
+name: publish
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: |
+          8.0.x
+    - name: Restore dependencies
+      run: dotnet restore ./Folleach.Vostok.Logging.Kafka.sln
+    - name: Build
+      run: dotnet build --no-restore ./Folleach.Vostok.Logging.Kafka.sln
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ./Folleach.Vostok.Logging.Kafka.sln
+  publish:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 8.0.x
+    - name: Set Version
+      run: echo ${{ github.ref_name }} | sed -r "s/^v/LIB_VERSION=/" >> $GITHUB_ENV
+    - name: Restore dependencies
+      run: dotnet restore ./Folleach.Vostok.Logging.Kafka.sln
+    - name: Release build
+      run: dotnet build -c Release ./Folleach.Vostok.Logging.Kafka/Folleach.Vostok.Logging.Kafka.csproj
+    - name: Pack
+      run: dotnet pack -c Release -o ./pack/ /p:PackageVersion=$LIB_VERSION ./Folleach.Vostok.Logging.Kafka/Folleach.Vostok.Logging.Kafka.csproj
+    - name: Push to NuGet
+      run: dotnet nuget push ./pack/Folleach.Vostok.Logging.Kafka*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
