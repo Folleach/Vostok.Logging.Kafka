@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.4.0" />
+    <PackageReference Include="Vostok.Logging.Abstractions" Version="1.0.32" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Options/" />
+  </ItemGroup>
+
+</Project>
